@@ -45,7 +45,7 @@ CREATE TRIGGER notify_fixtures
 commit;
 
 -- To setup listeners to Async notify channel.
-LISTEN fixtures.parameters;
+LISTEN fixtures;
 
 -- Inserting a dummy record to test async notifications.
 insert into fixtures values (4,1);
