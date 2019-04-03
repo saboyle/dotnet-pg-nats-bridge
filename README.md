@@ -68,4 +68,12 @@ Options:
   -msgHost|--msgHost <host>               NATS Host
   -msgPort|--msgPort <host>               NATS Port
   -msgChannel|--msgChannel <channel>      NATS Channel
+  
+  C:>pg_nats_bridge.exe
+```
+## Example execution
+``` cmd
+Bridging [Db localhost:5432 postgres (fixtures)] -> [NATS demo.nats.io:4222 (fixtures)]
+
+03/04/2019 11:18:00: {"key":51,"params":150}
   ```
