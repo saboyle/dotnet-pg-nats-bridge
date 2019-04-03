@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text;
 using Npgsql;
+using NATS.Client;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace DotNetPgNatsBridge
@@ -42,20 +44,33 @@ namespace DotNetPgNatsBridge
 
         public static void Listen(string host, string port, string database, string username, string password, string channel)
         {
+            // Pg Endpoint
             string connectionString = String.Format("Host={0}; Port={1}; Database={2}; Username={3}; Password={4};", host, port, database, username, password);
-            var conn = new NpgsqlConnection(connectionString);
+            var pgConn = new NpgsqlConnection(connectionString);
+            pgConn.Open();
 
-            conn.Open();
-            conn.Notification += (o, e) => Console.WriteLine("{0}: {1}", DateTime.Now.ToString(), e.AdditionalInformation);
+            // Nats Endpoint
+            Options opts = ConnectionFactory.GetDefaultOptions();
+            opts.Url = "localhost:4222";
+            IConnection natsConn = new ConnectionFactory().CreateConnection(opts);
 
-            using (var cmd = new NpgsqlCommand(String.Format("LISTEN {0}", channel), conn))
+            // Setup LISTEN to pg emitted events.
+            using (var cmd = new NpgsqlCommand(String.Format("LISTEN {0}", channel), pgConn))
             {
                 cmd.ExecuteNonQuery();
             }
 
+            // Configure emit to target endpoint
+            pgConn.Notification += (o, e) =>
+            {
+                Console.WriteLine("{0}: {1}", DateTime.Now.ToString(), e.AdditionalInformation);
+                natsConn.Publish("fixtures", Encoding.ASCII.GetBytes(e.AdditionalInformation));
+                natsConn.Flush();
+            };
+
             while (true)
             {
-                conn.Wait();   // Thread will block here
+                pgConn.Wait();   // Thread will block here
             }
         }
     }
