@@ -53,6 +53,8 @@ insert into fixtures values (4,1);
 
 ## Usage:
 ``` cmd
+c:>pg_nats_bridge.exe -h
+
 Usage:  [options]
 
 Options:
