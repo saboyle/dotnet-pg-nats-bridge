@@ -1,4 +1,4 @@
-﻿# dotnet-pg-nats-bridge [alpha]
+﻿# dotnet-pg-nats-bridge
 
 Exploratory implementation of a .net Postgres to NATS bridge.
 
