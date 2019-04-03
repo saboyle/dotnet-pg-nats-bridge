@@ -36,7 +36,7 @@
     <RootNamespace>dotnet_pg_nats_bridge</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>DotNetPgNatsBridge.MainClass</StartupObject>
+    <StartupObject>DotNetPgNatsBridge.DotNetPgNatsBridge</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="McMaster.Extensions.CommandLineUtils, Version=2.3.3.0, Culture=neutral, PublicKeyToken=6f71cb76b82f055d, processorArchitecture=MSIL">

@@ -6,7 +6,9 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace DotNetPgNatsBridge
 {
-    class MainClass
+    [Command(Name = "pg_nats_bridge", Description = "A messaging bridge between Postgres notification channels and a NATS.io messaging cluster.")]
+    [HelpOption("-?")]
+    class DotNetPgNatsBridge
     {
         public static void Main(string[] _args)
         {
@@ -39,7 +41,7 @@ namespace DotNetPgNatsBridge
 
                 // TODO: Replace Console to logging
                 Console.WriteLine("");
-                Console.WriteLine("Bridging [Db {0}:{1} {2}->{3}] -> NATS {4}:{5} -> {6} ", pgHost, pgPort, pgDb, pgChannel);
+                Console.WriteLine("Bridging [Db {0}:{1} {2} ({3})] -> [NATS {4}:{5} ({6})] ", pgHost, pgPort, pgDb, pgChannel, msgHost, msgPort, msgChannel);
                 Console.WriteLine("");
 
                 Listen(pgHost, pgPort, pgDb, pgUser, pgPassword, pgChannel, msgHost, msgPort, msgChannel);
