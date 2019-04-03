@@ -20,6 +20,10 @@ namespace DotNetPgNatsBridge
             var optionPgUser = app.Option("-pgUser|--postgresUser <user>", "Postgres user", CommandOptionType.SingleValue);
             var optionPgPassword = app.Option("-pgPassword|--postgresPassword <user>", "Postgres password", CommandOptionType.SingleValue);
 
+            var optionMsgHost= app.Option("-msgHost|--msgHost <host>", "NATS Host", CommandOptionType.SingleValue);
+            var optionMsgPort = app.Option("-msgPort|--msgPort <host>", "NATS Port", CommandOptionType.SingleValue);
+            var optionMsgChannel = app.Option("-msgChannel|--msgChannel <channel>", "NATS Channel", CommandOptionType.SingleValue);
+
             app.OnExecute(() =>
             {
                 var pgHost = optionPgHost.HasValue() ? optionPgHost.Value() : "localhost";
@@ -29,12 +33,16 @@ namespace DotNetPgNatsBridge
                 var pgUser = optionPgUser.HasValue() ? optionPgUser.Value() : "postgres";             // TODO: Implement read from Env first for security
                 var pgPassword = optionPgPassword.HasValue() ? optionPgPassword.Value() : "password"; // TODO: Implement read from Env first for security
 
+                var msgHost = optionMsgHost.HasValue() ? optionMsgHost.Value() : "demo.nats.io";
+                var msgPort = optionMsgPort.HasValue() ? optionMsgPort.Value() : "4222";
+                var msgChannel = optionMsgChannel.HasValue() ? optionMsgChannel.Value() : pgChannel;
+
                 // TODO: Replace Console to logging
                 Console.WriteLine("");
-                Console.WriteLine("Bridging [Db {0}:{1} {2}->{3}] -> NATS", pgHost, pgPort, pgDb, pgChannel);
+                Console.WriteLine("Bridging [Db {0}:{1} {2}->{3}] -> NATS {4}:{5} -> {6} ", pgHost, pgPort, pgDb, pgChannel);
                 Console.WriteLine("");
 
-                Listen(pgHost, pgPort, pgDb, pgUser, pgPassword, pgChannel);
+                Listen(pgHost, pgPort, pgDb, pgUser, pgPassword, pgChannel, msgHost, msgPort, msgChannel);
 
                 return 0;
             });
@@ -42,7 +50,7 @@ namespace DotNetPgNatsBridge
             app.Execute(_args);
         }
 
-        public static void Listen(string host, string port, string database, string username, string password, string channel)
+        public static void Listen(string host, string port, string database, string username, string password, string channel, string msgHost, string msgPort, string msgChannel)
         {
             // Pg Endpoint
             string connectionString = String.Format("Host={0}; Port={1}; Database={2}; Username={3}; Password={4};", host, port, database, username, password);
@@ -51,7 +59,8 @@ namespace DotNetPgNatsBridge
 
             // Nats Endpoint
             Options opts = ConnectionFactory.GetDefaultOptions();
-            opts.Url = "localhost:4222";
+            opts.Url = string.Format("{0}:{1}", msgHost, msgPort);
+
             IConnection natsConn = new ConnectionFactory().CreateConnection(opts);
 
             // Setup LISTEN to pg emitted events.
@@ -64,7 +73,7 @@ namespace DotNetPgNatsBridge
             pgConn.Notification += (o, e) =>
             {
                 Console.WriteLine("{0}: {1}", DateTime.Now.ToString(), e.AdditionalInformation);
-                natsConn.Publish("fixtures", Encoding.ASCII.GetBytes(e.AdditionalInformation));
+                natsConn.Publish(msgChannel, Encoding.ASCII.GetBytes(e.AdditionalInformation));
                 natsConn.Flush();
             };
 

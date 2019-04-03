@@ -51,4 +51,19 @@ LISTEN fixtures;
 insert into fixtures values (4,1);
 ```
 
+## Usage:
+``` cmd
+Usage:  [options]
 
+Options:
+  -?|-h|--help                            Show help information
+  -pgHost|--postgresHost <host>           Postgres host
+  -pgPort|--postgresPort <port>           Postgres port
+  -pgChannel|--postgresChannel <channel>  Postgres notification channel
+  -pgDB|--postgresDBl <channel>           Postgres database
+  -pgUser|--postgresUser <user>           Postgres user
+  -pgPassword|--postgresPassword <user>   Postgres password
+  -msgHost|--msgHost <host>               NATS Host
+  -msgPort|--msgPort <host>               NATS Port
+  -msgChannel|--msgChannel <channel>      NATS Channel
+  ```
